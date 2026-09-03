@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: ai-agent-reliability-engineer
+Version: 0.1.0
+Summary: Agent-Agnostic AI Reliability Evaluation and Improvement System
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.111.0
+Requires-Dist: uvicorn>=0.30.1
+Requires-Dist: pydantic>=2.7.4
+Requires-Dist: pydantic-settings>=2.3.4
+Requires-Dist: sqlalchemy>=2.0.30
+Requires-Dist: psycopg2-binary>=2.9.9
+Requires-Dist: alembic>=1.13.1
+Provides-Extra: dev
+Requires-Dist: pytest>=8.2.2; extra == "dev"
+Requires-Dist: httpx>=0.27.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+
+# AI Agent Reliability Engineer
+
+Agent-Agnostic AI Reliability Evaluation and Improvement System - Phase 1 Foundation
