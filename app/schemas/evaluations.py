@@ -30,3 +30,18 @@ class TaskSuccessEvaluationResult(EvaluationResultFoundation):
     constraint_evaluations: List[ConstraintEvaluation] = Field(default_factory=list)
     
     model_config = ConfigDict(from_attributes=True)
+
+class ReliabilityVerdictResult(BaseModel):
+    id: Optional[int] = None
+    trace_id: int
+    task_success_evaluation_id: Optional[int] = None
+    response_truthfulness_evaluation_id: Optional[int] = None
+    task_outcome: str
+    response_truthfulness: str
+    overall_evaluation_verdict: str
+    reliability_classification: str
+    failure_type: Optional[str] = None
+    determination_method: DeterminationMethod = DeterminationMethod.DETERMINISTIC_RULE
+    summary: str
+    
+    model_config = ConfigDict(from_attributes=True)

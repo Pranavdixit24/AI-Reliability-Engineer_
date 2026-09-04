@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.core.config import settings
 from app.schemas.core import HealthResponse
-from app.api.routes import test_cases, traces, evaluations, response_truthfulness
+from app.api.routes import test_cases, traces, evaluations, response_truthfulness, reliability_verdict
 
 app = FastAPI(
     title=settings.app_name,
@@ -13,6 +13,7 @@ app.include_router(test_cases.router)
 app.include_router(traces.router)
 app.include_router(evaluations.router)
 app.include_router(response_truthfulness.router)
+app.include_router(reliability_verdict.router)
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():
