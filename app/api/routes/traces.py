@@ -5,7 +5,9 @@ from sqlalchemy import select
 
 from app.core.database import get_db
 from app.schemas.core import ExecutionTraceResponse
+from app.schemas.facts import TraceFacts
 from app.domain.models.core import ExecutionTraceModel
+from app.services.trace_fact_extractor import TraceFactExtractor
 
 router = APIRouter(prefix="/traces", tags=["Traces"])
 
@@ -52,3 +54,14 @@ def get_trace(trace_id: int, db: Session = Depends(get_db)):
         metadata=db_trace.metadata_info,
         steps=db_trace.steps
     )
+
+@router.get("/{trace_id}/facts", response_model=TraceFacts)
+def get_trace_facts(trace_id: int, db: Session = Depends(get_db)):
+    """
+    On-demand extraction of normalized facts from a trace.
+    """
+    db_trace = db.get(ExecutionTraceModel, trace_id)
+    if not db_trace:
+        raise HTTPException(status_code=404, detail="Trace not found")
+        
+    return TraceFactExtractor.extract_facts(db_trace)

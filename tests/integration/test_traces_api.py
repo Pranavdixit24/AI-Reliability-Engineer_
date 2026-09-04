@@ -67,6 +67,17 @@ def test_traces_api_with_db(client, db_session):
     data = resp.json()
     assert len(data["steps"]) > 0
     
+    # Test GET /traces/{id}/facts
+    resp = client.get(f"/traces/{trace.id}/facts")
+    assert resp.status_code == 200
+    facts_data = resp.json()
+    assert "observed_intents" in facts_data
+    assert "observed_operations" in facts_data
+    
 def test_trace_not_found(client):
     resp = client.get("/traces/999")
+    assert resp.status_code == 404
+    
+def test_trace_facts_not_found(client):
+    resp = client.get("/traces/999/facts")
     assert resp.status_code == 404
