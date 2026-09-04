@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     
     # LLM Configuration
     llm_api_key: str | None = None
-    llm_model: str = "gpt-4o-mini"
+    llm_model: str = "openai/gpt-oss-20b"
     llm_base_url: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")

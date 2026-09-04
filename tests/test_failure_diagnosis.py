@@ -268,38 +268,43 @@ app.dependency_overrides[get_db] = override_get_db
 
 def test_api_integration():
     # Required Test 13: API Integration
-    db = TestingSessionLocal()
-    from app.domain.models.core import ExecutionTraceModel, TestCaseModel
-    tc = TestCaseModel(task_type="test", task_description="desc")
-    db.add(tc)
-    db.commit()
-    trace = ExecutionTraceModel(test_case_id=tc.id, trace_identifier="test-1")
-    db.add(trace)
-    db.commit()
+    app.dependency_overrides[get_db] = override_get_db
+    try:
+        db = TestingSessionLocal()
+        from app.domain.models.core import ExecutionTraceModel, TestCaseModel
+        tc = TestCaseModel(task_type="test", task_description="desc")
+        db.add(tc)
+        db.commit()
+        trace = ExecutionTraceModel(test_case_id=tc.id, trace_identifier="test-1")
+        db.add(trace)
+        db.commit()
+        
+        task_eval = TaskSuccessEvaluationModel(
+            trace_id=trace.id, test_case_id=tc.id, task_outcome="FAILURE", determination_method="DETERMINISTIC_RULE", structured_details={}
+        )
+        db.add(task_eval)
+        db.commit()
+        
+        rel_eval = ReliabilityVerdictEvaluationModel(
+            trace_id=trace.id, task_outcome="FAILURE", response_truthfulness="UNKNOWN", overall_evaluation_verdict="FAIL",
+            reliability_classification="HONEST_FAILURE", determination_method="DETERMINISTIC_RULE", summary="sum"
+        )
+        db.add(rel_eval)
+        db.commit()
+        
+        spec = SuccessSpecificationModel()
+        db.add(spec)
+        db.commit()
+        tc.success_specification_id = spec.id
+        db.commit()
     
-    task_eval = TaskSuccessEvaluationModel(
-        trace_id=trace.id, test_case_id=tc.id, task_outcome="FAILURE", determination_method="DETERMINISTIC_RULE", structured_details={}
-    )
-    db.add(task_eval)
-    db.commit()
-    
-    rel_eval = ReliabilityVerdictEvaluationModel(
-        trace_id=trace.id, task_outcome="FAILURE", response_truthfulness="UNKNOWN", overall_evaluation_verdict="FAIL",
-        reliability_classification="HONEST_FAILURE", determination_method="DETERMINISTIC_RULE", summary="sum"
-    )
-    db.add(rel_eval)
-    db.commit()
-    
-    spec = SuccessSpecificationModel()
-    db.add(spec)
-    db.commit()
-    tc.success_specification_id = spec.id
-    db.commit()
+        client = TestClient(app)
+        response = client.post("/evaluations/failure-diagnosis", json={"trace_id": trace.id})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["trace_id"] == trace.id
+        assert "root_cause_category" in data
+    finally:
+        app.dependency_overrides.clear()
 
-    client = TestClient(app)
-    response = client.post("/evaluations/failure-diagnosis", json={"trace_id": trace.id})
-    assert response.status_code == 200
-    data = response.json()
-    assert data["trace_id"] == trace.id
-    assert "root_cause_category" in data
 
