@@ -74,3 +74,17 @@ class TraceStepModel(Base):
     entity_identifiers: Mapped[list[str]] = mapped_column(JSON, default=list)
 
     trace: Mapped[ExecutionTraceModel] = relationship(back_populates="steps")
+
+class TaskSuccessEvaluationModel(Base):
+    __tablename__ = "task_success_evaluations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    trace_id: Mapped[int] = mapped_column(ForeignKey("execution_traces.id"), unique=True, index=True)
+    test_case_id: Mapped[int] = mapped_column(ForeignKey("test_cases.id"))
+    task_outcome: Mapped[str] = mapped_column(String)
+    determination_method: Mapped[str] = mapped_column(String)
+    structured_details: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    trace: Mapped["ExecutionTraceModel"] = relationship()
+    test_case: Mapped["TestCaseModel"] = relationship()
