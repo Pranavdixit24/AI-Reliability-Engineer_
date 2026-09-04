@@ -88,3 +88,22 @@ class TaskSuccessEvaluationModel(Base):
 
     trace: Mapped["ExecutionTraceModel"] = relationship()
     test_case: Mapped["TestCaseModel"] = relationship()
+
+class ResponseTruthfulnessEvaluationModel(Base):
+    __tablename__ = "response_truthfulness_evaluations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    trace_id: Mapped[int] = mapped_column(ForeignKey("execution_traces.id"), unique=True, index=True)
+    task_success_evaluation_id: Mapped[int | None] = mapped_column(ForeignKey("task_success_evaluations.id"), nullable=True)
+    response_truthfulness: Mapped[str] = mapped_column(String)
+    response_outcome_claim: Mapped[str] = mapped_column(String)
+    material_claims: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    contradictions: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    unsupported_claims: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    reasoning_summary: Mapped[str] = mapped_column(String)
+    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    metadata_info: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    trace: Mapped["ExecutionTraceModel"] = relationship()
+    task_success_evaluation: Mapped["TaskSuccessEvaluationModel"] = relationship()
