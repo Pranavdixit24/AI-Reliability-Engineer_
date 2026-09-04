@@ -21,6 +21,11 @@ const getStatusBadge = (status: string) => {
 
 export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => {
   const [history, setHistory] = useState<EvaluationHistoryResult | null>(null);
+  
+  const formatActionType = (action: string) => {
+    if (!action) return 'Unknown';
+    return action.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+  };
   const [trace, setTrace] = useState<ExecutionTraceResponse | null>(null);
   const [testCase, setTestCase] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -83,7 +88,7 @@ export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => 
       {/* SECTION 1: WHAT WAS REQUESTED */}
       <section className="mb-8">
         <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase tracking-wider text-accent border-b border-slate-700 pb-2">
-          <User size={20} /> What Was Requested
+          <User size={20} /> Test Case Specification
         </h2>
         {testCase ? (
           <div className="card bg-slate-800/50">
@@ -94,11 +99,11 @@ export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => 
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-sm text-muted uppercase block mb-2">Required Entities</span>
+                <span className="text-sm text-muted uppercase block mb-2">Required Entity</span>
                 {Object.keys(testCase.success_specification?.required_entities || {}).length > 0 ? (
                   <ul className="list-disc pl-5">
                     {Object.entries(testCase.success_specification.required_entities).map(([k, v]) => (
-                      <li key={k}><span className="font-mono text-sm">{k}</span> = {JSON.stringify(v)}</li>
+                      <li key={k}><span className="font-mono text-sm">{k}</span> = {typeof v === 'string' ? v : JSON.stringify(v)}</li>
                     ))}
                   </ul>
                 ) : (
@@ -107,7 +112,7 @@ export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => 
               </div>
               
               <div>
-                <span className="text-sm text-muted uppercase block mb-2">Required Operations</span>
+                <span className="text-sm text-muted uppercase block mb-2">Success Requirement</span>
                 {testCase.success_specification?.required_operations?.length > 0 ? (
                   <ul className="list-disc pl-5">
                     {testCase.success_specification.required_operations.map((op: any, i: number) => (
@@ -128,7 +133,7 @@ export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => 
       {/* SECTION 2 & 3: WHAT THE AGENT DID & ACTUALLY HAPPENED */}
       <section className="mb-8">
         <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase tracking-wider text-accent border-b border-slate-700 pb-2">
-          <PlayCircle size={20} /> Execution Trace
+          <PlayCircle size={20} /> Observed Agent Execution
         </h2>
         
         {trace?.steps?.length ? (
@@ -138,31 +143,55 @@ export const TraceDetail: React.FC<TraceDetailProps> = ({ traceId, onBack }) => 
                 <div className="absolute top-0 left-0 w-1 h-full bg-accent/50" />
                 
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-slate-300">Step {step.step_number} &mdash; {step.action_type}</span>
+                  <span className="font-bold text-slate-300">Step {step.step_number} &mdash; {formatActionType(step.action_type)}</span>
                   {step.status && getStatusBadge(step.status)}
                 </div>
                 
-                {step.intent && (
+                {step.action_type === 'INTENT_RECOGNITION' && step.intent && (
                   <div className="mt-2 text-sm">
-                    <span className="text-muted">Intent: </span>
+                    <span className="text-muted">Recognized Intent: </span>
                     <span className="font-mono text-emerald-400">{step.intent}</span>
                   </div>
                 )}
                 
-                {step.tool_name && (
+                {step.action_type === 'ENTITY_EXTRACTION' && step.tool_arguments && (
+                  <div className="mt-2 text-sm">
+                    <span className="text-muted block mb-1">Extracted Entity:</span>
+                    {Object.entries(step.tool_arguments).map(([k, v]) => (
+                      <div key={k} className="font-mono text-blue-300">
+                        {k} = {typeof v === 'string' ? v : JSON.stringify(v)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {step.action_type === 'TOOL_CALL' && step.tool_name && (
                   <div className="mt-2">
-                    <div className="text-sm text-muted mb-1">Tool Call</div>
+                    <div className="text-sm text-muted mb-1">Tool:</div>
                     <div className="bg-slate-900 p-2 rounded font-mono text-sm text-blue-300">
                       {step.tool_name}({JSON.stringify(step.tool_arguments || {})})
                     </div>
                   </div>
                 )}
                 
-                {step.tool_result && (
+                {step.action_type === 'TOOL_RESULT' && step.tool_name && (
                   <div className="mt-2">
-                    <div className="text-sm text-muted mb-1">Tool Result</div>
+                    <div className="text-sm text-muted mb-1">Tool: <span className="text-slate-300 font-mono">{step.tool_name}</span></div>
+                    {step.tool_result && (
+                      <div className="mt-2">
+                        <div className="text-sm text-muted mb-1">Result / Error:</div>
+                        <div className="bg-slate-900 p-2 rounded font-mono text-sm text-slate-300 whitespace-pre-wrap">
+                          {step.tool_result}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {step.action_type === 'FINAL_RESPONSE' && (
+                  <div className="mt-2">
                     <div className="bg-slate-900 p-2 rounded font-mono text-sm text-slate-300 whitespace-pre-wrap">
-                      {step.tool_result}
+                      {step.tool_result || step.tool_arguments?.response || "No response text captured."}
                     </div>
                   </div>
                 )}
