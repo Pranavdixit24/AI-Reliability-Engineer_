@@ -45,3 +45,21 @@ class ReliabilityVerdictResult(BaseModel):
     summary: str
     
     model_config = ConfigDict(from_attributes=True)
+
+class FailureDiagnosisResult(BaseModel):
+    id: Optional[int] = None
+    trace_id: int
+    task_success_evaluation_id: int
+    response_truthfulness_evaluation_id: Optional[int] = None
+    reliability_verdict_evaluation_id: int
+    
+    failure_type: Optional[str] = None
+    reliability_classification: str
+    root_cause_category: str
+    determination_method: DeterminationMethod = DeterminationMethod.DETERMINISTIC_RULE
+    
+    summary: str
+    supporting_evidence: Dict[str, Any] = Field(default_factory=dict)
+    contributing_signals: List[Dict[str, Any]] = Field(default_factory=list)
+    
+    model_config = ConfigDict(from_attributes=True)

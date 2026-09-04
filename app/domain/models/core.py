@@ -128,3 +128,27 @@ class ReliabilityVerdictEvaluationModel(Base):
     trace: Mapped["ExecutionTraceModel"] = relationship()
     task_success_evaluation: Mapped["TaskSuccessEvaluationModel"] = relationship()
     response_truthfulness_evaluation: Mapped["ResponseTruthfulnessEvaluationModel"] = relationship()
+
+class FailureDiagnosisEvaluationModel(Base):
+    __tablename__ = "failure_diagnosis_evaluations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    trace_id: Mapped[int] = mapped_column(ForeignKey("execution_traces.id"), unique=True, index=True)
+    task_success_evaluation_id: Mapped[int] = mapped_column(ForeignKey("task_success_evaluations.id"))
+    response_truthfulness_evaluation_id: Mapped[int | None] = mapped_column(ForeignKey("response_truthfulness_evaluations.id"), nullable=True)
+    reliability_verdict_evaluation_id: Mapped[int] = mapped_column(ForeignKey("reliability_verdict_evaluations.id"))
+    
+    failure_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    reliability_classification: Mapped[str] = mapped_column(String)
+    root_cause_category: Mapped[str] = mapped_column(String)
+    determination_method: Mapped[str] = mapped_column(String)
+    
+    summary: Mapped[str] = mapped_column(String)
+    supporting_evidence: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    contributing_signals: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    trace: Mapped["ExecutionTraceModel"] = relationship()
+    task_success_evaluation: Mapped["TaskSuccessEvaluationModel"] = relationship()
+    response_truthfulness_evaluation: Mapped["ResponseTruthfulnessEvaluationModel"] = relationship()
+    reliability_verdict_evaluation: Mapped["ReliabilityVerdictEvaluationModel"] = relationship()
