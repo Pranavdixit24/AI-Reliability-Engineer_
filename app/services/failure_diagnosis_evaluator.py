@@ -95,7 +95,7 @@ class FailureDiagnosisEvaluator:
                 # To be absolutely sure, check trace facts for this operation. 
                 # If it failed all attempts, it's a tool execution failure.
                 op_fact = next((op for op in trace_facts.observed_operations if op.operation_name == op_eval.operation), None)
-                if op_fact and op_fact.final_observed_status == "FAILURE":
+                if op_fact and op_fact.final_observed_status in ["FAILURE", "ERROR", "FAILED"]:
                     return self._build_result(
                         trace_id, task_success_eval.id, reliability_verdict_eval.id, 
                         response_truthfulness_eval.id if response_truthfulness_eval else None,
@@ -104,7 +104,7 @@ class FailureDiagnosisEvaluator:
                         {
                             "operation": op_eval.operation,
                             "attempt_count": op_eval.attempt_count,
-                            "final_status": "FAILURE"
+                            "final_status": op_fact.final_observed_status
                         }
                     )
 

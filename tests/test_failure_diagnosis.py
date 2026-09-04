@@ -62,6 +62,28 @@ def test_tool_execution_failure(evaluator, base_trace_facts, base_task_success, 
     assert result.root_cause_category == RootCauseCategory.EXTERNAL_TOOL_FAILURE.value
     assert result.supporting_evidence["operation"] == "cancel_order"
 
+def test_tool_execution_error_503(evaluator, base_trace_facts, base_task_success, base_reliability_verdict):
+    # Required Test: Service unavailable / 503 evidence -> EXTERNAL_TOOL_FAILURE
+    base_task_success.structured_details = {
+        "operation_evaluations": [
+            {
+                "operation": "cancel_order",
+                "requirement": "must_succeed",
+                "satisfied": False,
+                "attempt_count": 1
+            }
+        ]
+    }
+    # Trace contains ERROR and 503 Service Unavailable
+    op = ObservedOperation(operation_name="cancel_order", attempt_count=1, final_observed_status="ERROR")
+    # For a full test we could set attempts but final_observed_status is what the rule checks
+    base_trace_facts.observed_operations.append(op)
+    
+    result = evaluator.evaluate(1, base_task_success, base_reliability_verdict, base_trace_facts, None)
+    assert result.root_cause_category == RootCauseCategory.EXTERNAL_TOOL_FAILURE.value
+    assert result.supporting_evidence["operation"] == "cancel_order"
+    assert result.supporting_evidence["final_status"] == "ERROR"
+
 def test_retry_then_success(evaluator, base_trace_facts, base_task_success, base_reliability_verdict):
     # Required Test 2: Retry Then Success (Should NOT be tool execution failure)
     # Task success is true here.
