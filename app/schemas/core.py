@@ -119,3 +119,19 @@ class EvaluationResultFoundation(BaseModel):
 class ExecutionTraceResponse(ExecutionTrace):
     """API response for a generated execution trace"""
     pass
+
+class TraceSummary(BaseModel):
+    """Summary representation for trace lists"""
+    id: int
+    trace_identifier: str
+    test_case_id: int
+    is_evaluated: bool
+    overall_evaluation_verdict: Optional[str] = None
+    reliability_classification: Optional[str] = None
+    steps_count: int = 0
+    final_response: Optional[str] = None
+
+class PaginatedTracesResponse(BaseModel):
+    """Paginated response for traces"""
+    total: int
+    items: List[TraceSummary]

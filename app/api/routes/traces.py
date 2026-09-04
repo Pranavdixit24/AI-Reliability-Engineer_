@@ -1,12 +1,12 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.core.database import get_db
-from app.schemas.core import ExecutionTraceResponse
+from app.schemas.core import ExecutionTraceResponse, PaginatedTracesResponse, TraceSummary
 from app.schemas.facts import TraceFacts
-from app.domain.models.core import ExecutionTraceModel
+from app.domain.models.core import ExecutionTraceModel, ReliabilityVerdictEvaluationModel
 from app.services.trace_fact_extractor import TraceFactExtractor
 
 router = APIRouter(prefix="/traces", tags=["Traces"])
@@ -35,6 +35,39 @@ def list_traces(skip: int = 0, limit: int = 100, test_case_id: Optional[int] = N
             steps=t.steps
         ))
     return responses
+
+@router.get("/summary", response_model=PaginatedTracesResponse)
+def list_traces_summary(skip: int = 0, limit: int = 100, evaluated_only: bool = False, db: Session = Depends(get_db)):
+    """
+    List stored traces with their evaluation status and pagination total count.
+    """
+    base_query = select(ExecutionTraceModel, ReliabilityVerdictEvaluationModel).outerjoin(
+        ReliabilityVerdictEvaluationModel, ReliabilityVerdictEvaluationModel.trace_id == ExecutionTraceModel.id
+    )
+    
+    if evaluated_only:
+        base_query = base_query.where(ReliabilityVerdictEvaluationModel.id.isnot(None))
+        
+    total_query = select(func.count()).select_from(base_query.subquery())
+    total = db.scalar(total_query) or 0
+    
+    query = base_query.offset(skip).limit(limit)
+    results = db.execute(query).all()
+    
+    items = []
+    for trace, verdict in results:
+        items.append(TraceSummary(
+            id=trace.id,
+            trace_identifier=trace.trace_identifier,
+            test_case_id=trace.test_case_id,
+            is_evaluated=verdict is not None,
+            overall_evaluation_verdict=verdict.overall_evaluation_verdict if verdict else None,
+            reliability_classification=verdict.reliability_classification if verdict else None,
+            steps_count=len(trace.steps),
+            final_response=trace.final_response
+        ))
+        
+    return PaginatedTracesResponse(total=total, items=items)
 
 @router.get("/{trace_id}", response_model=ExecutionTraceResponse)
 def get_trace(trace_id: int, db: Session = Depends(get_db)):

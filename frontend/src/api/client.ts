@@ -2,12 +2,37 @@ import type {
   ExecutionTraceResponse,
   EvaluationHistoryResult,
   ReliabilityAnalyticsResponse,
-  BatchEvaluationResponse
+  BatchEvaluationResponse,
+  PaginatedTracesResponse
 } from '../types';
 
 const API_BASE = '/api';
 
 export const apiClient = {
+  async getTracesSummary(skip = 0, limit = 100, evaluatedOnly = false): Promise<PaginatedTracesResponse> {
+    const url = new URL(`${window.location.origin}${API_BASE}/traces/summary`);
+    url.searchParams.append('skip', skip.toString());
+    url.searchParams.append('limit', limit.toString());
+    if (evaluatedOnly) {
+      url.searchParams.append('evaluated_only', 'true');
+    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error('Failed to fetch traces summary');
+    return response.json();
+  },
+
+  async getTrace(traceId: number): Promise<ExecutionTraceResponse> {
+    const response = await fetch(`${API_BASE}/traces/${traceId}`);
+    if (!response.ok) throw new Error('Failed to fetch trace details');
+    return response.json();
+  },
+
+  async getTestCase(testCaseId: number): Promise<any> {
+    const response = await fetch(`${API_BASE}/test-cases/${testCaseId}`);
+    if (!response.ok) throw new Error('Failed to fetch test case context');
+    return response.json();
+  },
+
   async getTraces(): Promise<ExecutionTraceResponse[]> {
     const response = await fetch(`${API_BASE}/traces`);
     if (!response.ok) throw new Error('Failed to fetch traces');

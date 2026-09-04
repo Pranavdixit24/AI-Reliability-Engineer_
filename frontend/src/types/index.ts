@@ -4,9 +4,12 @@ export interface TraceStep {
   step_number: number;
   timestamp: string;
   action_type: string;
+  intent?: string;
   tool_name?: string;
   tool_arguments?: any;
   tool_result?: string;
+  status?: string;
+  error_information?: string;
 }
 
 export interface ExecutionTraceResponse {
@@ -17,6 +20,22 @@ export interface ExecutionTraceResponse {
   final_state?: Record<string, any>;
   metadata?: Record<string, any>;
   steps: TraceStep[];
+}
+
+export interface TraceSummary {
+  id: number;
+  trace_identifier: string;
+  test_case_id: number;
+  is_evaluated: boolean;
+  overall_evaluation_verdict?: string;
+  reliability_classification?: string;
+  steps_count: number;
+  final_response?: string;
+}
+
+export interface PaginatedTracesResponse {
+  total: number;
+  items: TraceSummary[];
 }
 
 export interface OperationEvaluation {

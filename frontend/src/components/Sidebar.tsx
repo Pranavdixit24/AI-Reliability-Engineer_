@@ -1,5 +1,6 @@
-import React from 'react';
-import { Activity, LayoutDashboard, List, Play } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Activity, LayoutDashboard, List, Play, Database } from 'lucide-react';
+import { apiClient } from '../api/client';
 
 interface SidebarProps {
   activeTab: string;
@@ -7,6 +8,26 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+  const [totalTraces, setTotalTraces] = useState<number | null>(null);
+  const [evaluatedTraces, setEvaluatedTraces] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch counts for sidebar
+    const fetchCounts = async () => {
+      try {
+        const [allData, evalData] = await Promise.all([
+          apiClient.getTracesSummary(0, 1, false),
+          apiClient.getTracesSummary(0, 1, true)
+        ]);
+        setTotalTraces(allData.total);
+        setEvaluatedTraces(evalData.total);
+      } catch (err) {
+        console.error('Failed to fetch counts for sidebar', err);
+      }
+    };
+    fetchCounts();
+  }, [activeTab]); // Refresh counts when tab changes (could be after an evaluation)
+
   return (
     <div className="sidebar">
       <div className="flex items-center gap-2 mb-6">
@@ -24,11 +45,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         </div>
         
         <div 
-          className={`nav-item ${activeTab === 'traces' ? 'active' : ''}`}
-          onClick={() => setActiveTab('traces')}
+          className={`nav-item ${activeTab === 'all-traces' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all-traces')}
+        >
+          <Database size={20} />
+          <div className="flex flex-col">
+            <span>All Traces</span>
+            {totalTraces !== null && <span className="text-xs text-muted">{totalTraces} total traces</span>}
+          </div>
+        </div>
+        
+        <div 
+          className={`nav-item ${activeTab === 'evaluated' ? 'active' : ''}`}
+          onClick={() => setActiveTab('evaluated')}
         >
           <List size={20} />
-          <span>Evaluated Traces</span>
+          <div className="flex flex-col">
+            <span>Evaluated Traces</span>
+            {evaluatedTraces !== null && <span className="text-xs text-muted">{evaluatedTraces} evaluated</span>}
+          </div>
         </div>
 
         <div 

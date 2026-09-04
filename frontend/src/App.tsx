@@ -24,8 +24,12 @@ function App() {
           </div>
         )}
         
-        {activeTab === 'traces' && (
-          <TracesList />
+        {activeTab === 'all-traces' && (
+          <TracesList evaluatedOnly={false} />
+        )}
+
+        {activeTab === 'evaluated' && (
+          <TracesList evaluatedOnly={true} />
         )}
         
         {activeTab === 'batch' && (
