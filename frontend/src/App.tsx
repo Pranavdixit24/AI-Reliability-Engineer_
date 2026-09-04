@@ -14,11 +14,11 @@ function App() {
       
       <main className="main-content">
         {activeTab === 'dashboard' && (
-          <div className="grid grid-cols-4 gap-6">
-            <div className="col-span-3">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="xl:col-span-3 min-w-0">
               <Dashboard />
             </div>
-            <div className="col-span-1">
+            <div className="xl:col-span-1 min-w-0">
               <ArchitectureFlow />
             </div>
           </div>

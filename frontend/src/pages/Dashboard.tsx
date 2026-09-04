@@ -58,7 +58,7 @@ export const Dashboard: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Reliability Analytics</h1>
       
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="card flex items-center gap-4">
           <div className="p-3 bg-blue-500 bg-opacity-10 rounded-full text-blue-500">
             <Target size={24} style={{ color: 'var(--accent-primary)' }} />
@@ -90,11 +90,11 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pass/Fail Pie */}
         <div className="card">
           <h2 className="font-semibold mb-4">Overall Verdicts</h2>
-          <div style={{ height: 300 }}>
+          <div style={{ height: 300, minHeight: 300, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={passFailData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -112,7 +112,7 @@ export const Dashboard: React.FC = () => {
         {/* Classification Pie */}
         <div className="card">
           <h2 className="font-semibold mb-4">Reliability Classifications</h2>
-          <div style={{ height: 300 }}>
+          <div style={{ height: 300, minHeight: 300, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={classificationData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -128,17 +128,17 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Failure Types Bar Chart */}
-        <div className="card">
+        <div className="card w-full overflow-hidden">
           <h2 className="font-semibold mb-4">Failure Types</h2>
-          <div style={{ height: 300 }}>
+          <div style={{ height: 300, minHeight: 300, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={failureTypeData} layout="vertical" margin={{ left: 50 }}>
+              <BarChart data={failureTypeData} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" horizontal={true} vertical={false} />
                 <XAxis type="number" stroke="var(--text-secondary)" />
-                <YAxis dataKey="name" type="category" stroke="var(--text-secondary)" width={100} tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }} />
+                <YAxis dataKey="name" type="category" stroke="var(--text-secondary)" width={210} tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }} cursor={{ fill: 'var(--panel-border)' }} />
                 <Bar dataKey="value" fill="var(--status-fail)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>

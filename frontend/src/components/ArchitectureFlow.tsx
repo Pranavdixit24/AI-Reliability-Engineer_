@@ -1,5 +1,5 @@
 import React from 'react';
-import { Database, FileCode, CheckSquare, Search, FileSignature, AlertTriangle, BarChart3, ArrowDown } from 'lucide-react';
+import { Database, FileCode, CheckSquare, Search, FileSignature, AlertTriangle, BarChart3, ArrowDown, Layers } from 'lucide-react';
 
 export const ArchitectureFlow: React.FC = () => {
   const steps = [
@@ -10,6 +10,7 @@ export const ArchitectureFlow: React.FC = () => {
     { name: 'Response Truthfulness', icon: <Search size={20} />, phase: 'Phase 6', highlight: true },
     { name: 'Reliability Verdict', icon: <FileSignature size={20} />, phase: 'Phase 7', highlight: true },
     { name: 'Failure Diagnosis', icon: <AlertTriangle size={20} />, phase: 'Phase 8', highlight: true },
+    { name: 'Evaluation Lifecycle Inspection', icon: <Layers size={20} />, phase: 'Phase 9', highlight: true },
     { name: 'Reliability Analytics', icon: <BarChart3 size={20} />, phase: 'Phase 10', highlight: true }
   ];
 
