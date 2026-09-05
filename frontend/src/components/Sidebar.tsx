@@ -75,12 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         </div>
       </nav>
       
-      <div className="mt-auto">
-        <div className="card text-sm text-muted">
-          <p>Phase 12 Demonstration</p>
-          <p className="mt-2 text-xs">v1.0.0</p>
-        </div>
-      </div>
+
     </div>
   );
 };
