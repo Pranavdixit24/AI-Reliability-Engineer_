@@ -553,3 +553,11 @@ The backend is deployed on Render's free tier. Free Render web services may spin
 When the service has been inactive and spun down, the next incoming request automatically wakes it up. This can cause the initial request and frontend data loading to take longer than usual, potentially around a minute or occasionally longer while the backend becomes available.
 
 Once the backend is running, subsequent requests should respond normally.
+
+## AI Usage Note
+
+AI tools were used as development assistants to accelerate research, implementation, debugging, and documentation.
+
+I defined and iterated on the project architecture, evaluation methodology, and implementation scope throughout the assignment. Key decisions—including the evidence-first evaluation approach, separating Task Success from Response Truthfulness, prioritizing deterministic trace evidence, and structuring the system as a modular monolith—were evaluated and refined during development against the assignment requirements.
+
+AI-generated suggestions and implementation assistance were reviewed, tested, and iterated on rather than used blindly. The final architecture, scope, technical decisions, testing approach, deployment configuration, and production setup reflect decisions made during the development process.
