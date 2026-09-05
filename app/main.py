@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.schemas.core import HealthResponse
 from app.api.routes import test_cases, traces, evaluations, response_truthfulness, reliability_verdict, failure_diagnosis, evaluation_history, reliability_analytics, batch_evaluations
@@ -7,6 +8,14 @@ app = FastAPI(
     title=settings.app_name,
     description="Agent-Agnostic AI Reliability Evaluation and Improvement System",
     version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in settings.frontend_url.split(",")],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(test_cases.router)

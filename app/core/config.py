@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     llm_model: str = "openai/gpt-oss-20b"
     llm_base_url: str | None = None
 
+    # CORS Configuration
+    frontend_url: str = "http://localhost:5173"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

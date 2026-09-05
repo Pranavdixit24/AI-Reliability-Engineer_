@@ -6,17 +6,17 @@ import type {
   PaginatedTracesResponse
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 export const apiClient = {
   async getTracesSummary(skip = 0, limit = 100, evaluatedOnly = false): Promise<PaginatedTracesResponse> {
-    const url = new URL(`${window.location.origin}${API_BASE}/traces/summary`);
-    url.searchParams.append('skip', skip.toString());
-    url.searchParams.append('limit', limit.toString());
+    const params = new URLSearchParams();
+    params.append('skip', skip.toString());
+    params.append('limit', limit.toString());
     if (evaluatedOnly) {
-      url.searchParams.append('evaluated_only', 'true');
+      params.append('evaluated_only', 'true');
     }
-    const response = await fetch(url.toString());
+    const response = await fetch(`${API_BASE}/traces/summary?${params.toString()}`);
     if (!response.ok) throw new Error('Failed to fetch traces summary');
     return response.json();
   },
