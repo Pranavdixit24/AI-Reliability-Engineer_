@@ -488,5 +488,68 @@ The project is fully implemented with the following core capabilities:
 - Deterministic reliability verdict and failure diagnosis generation.
 - Complete evaluation lifecycle inspection via API and UI.
 - Reliability analytics and metrics aggregation.
-- Idempotent batch evaluation functionality.
 - A fully functional React dashboard for visualization and interaction.
+
+---
+
+## 20. PRODUCTION DEPLOYMENT
+
+The current production architecture involves separate hosting environments for the frontend and backend, with a managed PostgreSQL database.
+
+```mermaid
+graph TD
+    Vercel["Vercel\nReact / Vite Frontend"] -- "HTTPS" --> Render["Render\nFastAPI Backend"]
+    Render --> Neon["Neon PostgreSQL\nProduction Database"]
+```
+
+The Render backend communicates with the configured production LLM provider using the backend environment variables.
+
+### Deployment Responsibilities
+
+#### Vercel
+- Hosts the React/Vite frontend.
+- Uses `VITE_API_URL` to connect the frontend to the Render backend.
+
+#### Render
+- Hosts the FastAPI backend.
+- Uses the production database connection.
+- Runs the backend service.
+- Handles LLM evaluation requests.
+- Contains backend-only environment variables and secrets.
+
+#### Neon PostgreSQL
+- Provides persistent production PostgreSQL storage.
+- Stores test cases, execution traces, success specifications, and production evaluation results.
+
+### Production Environment Variables
+
+**Render (Backend) Variables:**
+- `DATABASE_URL`: Connection string to the Neon PostgreSQL database.
+- `LLM_API_KEY`: Authentication key for the chosen LLM provider.
+- `LLM_MODEL`: The specific model to use for evaluations.
+- `LLM_BASE_URL`: The base URL for the LLM API.
+- `FRONTEND_URL`: The production Vercel URL (for CORS configuration).
+- `ENVIRONMENT`: Set to `production`.
+- `DEBUG`: Set to `false`.
+
+**Vercel (Frontend) Variables:**
+- `VITE_API_URL`: The URL of the production Render backend API.
+
+`VITE_API_URL` contains the public backend URL and is safe to expose in the frontend, while `LLM_API_KEY` and `DATABASE_URL` must remain private on the backend.
+
+### Production Initialization
+
+Production uses a separate Neon PostgreSQL database from local development, and evaluations performed in production are persisted in Neon.
+
+Based on the actual repository configuration, production initialization follows these steps:
+- **Alembic migrations:** The production database schema is initialized by running `alembic upgrade head`.
+- **Dataset seeding:** The dataset is seeded by running `python scripts/seed_dataset.py`. This script is idempotent and safely skips execution if test cases already exist in the database.
+- **Starting the FastAPI server:** The backend service is started using Uvicorn (e.g., `uvicorn app.main:app`), ensuring the FastAPI application is correctly bound to the host and port without the local development `--reload` flag.
+
+### Note on Render Cold Starts
+
+The backend is deployed on Render's free tier. Free Render web services may spin down after approximately 15 minutes of inactivity. Although keep-alive or cron jobs may be configured to reduce cold starts, they may not completely prevent occasional delays.
+
+When the service has been inactive and spun down, the next incoming request automatically wakes it up. This can cause the initial request and frontend data loading to take longer than usual, potentially around a minute or occasionally longer while the backend becomes available.
+
+Once the backend is running, subsequent requests should respond normally.
