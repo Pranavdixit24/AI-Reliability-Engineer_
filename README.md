@@ -356,25 +356,60 @@ The frontend provides a comprehensive UI to interact with the evaluation system:
 - Node.js 18+ and npm
 
 ### Backend Setup
-1. Clone the repository and navigate to the root directory.
-2. Create and activate a virtual environment:
+
+1. **Clone repository and navigate to the project root**
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
+
+2. **Create virtual environment**
    ```bash
    python -m venv .venv
-   # Windows:
-   .venv\Scripts\activate
-   # macOS/Linux:
-   source .venv/bin/activate
    ```
-3. Install backend dependencies (uses `pyproject.toml`):
+
+3. **Activate virtual environment**
+   - **Windows:**
+     ```bash
+     .venv\Scripts\activate
+     ```
+   - **macOS/Linux:**
+     ```bash
+     source .venv/bin/activate
+     ```
+
+4. **Install dependencies**
    ```bash
    pip install -e .[dev]
    ```
-4. Environment Variables: Copy `.env.example` to `.env` and add a placeholder or valid API key.
-5. Start the FastAPI server:
+
+5. **Configure .env**
+   Copy `.env.example` to `.env` and configure your `OPENAI_API_KEY`.
+
+6. **Initialize database schema**
    ```bash
-   uvicorn app.main:app --reload
+   alembic upgrade head
    ```
-*(Note: The `test.db` is already seeded with the dataset. Migrations via Alembic are available if schema changes are made).*
+
+7. **Generate/seed the synthetic dataset**
+   ```bash
+   python scripts/seed_dataset.py
+   ```
+
+8. **Dataset Details**
+   The seeding script creates exactly **25 Test Cases** and **125 Execution Traces**.
+
+9. **Deterministic and Idempotent**
+   The dataset seeding process is completely deterministic and reproducible. It is also idempotent (safely skips if the dataset already exists).
+
+10. **Start FastAPI**
+    ```bash
+    uvicorn app.main:app --reload
+    ```
+
+11. **API Endpoints**
+    - Local API URL: `http://localhost:8000`
+    - Swagger docs URL: `http://localhost:8000/docs`
 
 ### Frontend Setup
 1. Open a new terminal and navigate to the `frontend` directory:
