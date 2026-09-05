@@ -207,48 +207,54 @@ An Execution Trace consists of a sequence of steps. Each step captures chronolog
 
 ```mermaid
 graph TD
+
     %% Inputs
-    Spec[Test Case / Success Specification]
-    Trace[Observed Execution Trace]
+    Spec["Test Case / Success Specification"]
+    Trace["Observed Execution Trace"]
 
-    %% Phase 1
-    subgraph Phase1 [A. Fact Extraction]
-        Facts[Trace Fact Extractor]
+    %% Fact Extraction
+    subgraph Phase1["A. Fact Extraction"]
+        Facts["Trace Fact Extractor"]
     end
 
-    %% Phase 2
-    subgraph Phase2 [B. Task Success]
-        TaskEval[Task Success Evaluator<br/>(Deterministic)]
+    %% Task Success
+    subgraph Phase2["B. Task Success Evaluation"]
+        TaskEval["Task Success Evaluator - Deterministic"]
     end
 
-    %% Phase 3
-    subgraph Phase3 [C. Response Truthfulness]
-        TruthEval[Response Truthfulness Evaluator<br/>(LLM-Assisted Semantic)]
+    %% Response Truthfulness
+    subgraph Phase3["C. Response Truthfulness Evaluation"]
+        TruthEval["Response Truthfulness Evaluator - LLM-Assisted Semantic"]
     end
 
-    %% Phase 4 & 5
-    subgraph Phase4_5 [D & E. Verdict & Diagnosis]
-        VerdictEval[Reliability Verdict Evaluator<br/>(Deterministic)]
-        DiagEval[Failure Diagnosis Evaluator<br/>(Deterministic)]
+    %% Verdict and Diagnosis
+    subgraph Phase4_5["D. Reliability Verdict and Failure Diagnosis"]
+        VerdictEval["Reliability Verdict Evaluator - Deterministic"]
+        DiagEval["Failure Diagnosis Evaluator - Deterministic"]
     end
 
-    %% Data flow
-    Spec --> TaskEval
+    %% Evidence flow
     Trace --> Facts
-    
+
+    %% Task success is evaluated using requirements plus extracted evidence
+    Spec --> TaskEval
     Facts --> TaskEval
-    TaskEval -->|Established Execution Reality| TruthEval
+
+    %% Established reality is used for semantic truthfulness evaluation
+    TaskEval -->|"Established Execution Reality"| TruthEval
     Facts --> TruthEval
-    
+
+    %% Independent results combine into reliability verdict
     TaskEval --> VerdictEval
     TruthEval --> VerdictEval
-    
+
+    %% Diagnosis uses evaluation outcomes
     VerdictEval --> DiagEval
     TaskEval --> DiagEval
     TruthEval --> DiagEval
-    
-    %% Output
-    VerdictEval --> DB[(Persistence)]
+
+    %% Persistence
+    VerdictEval --> DB[("Persistence")]
     DiagEval --> DB
 ```
 
