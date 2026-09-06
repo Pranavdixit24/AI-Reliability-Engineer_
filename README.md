@@ -60,7 +60,8 @@ Analytics / Batch Evaluation / Dashboard
 
 ## 4. MANDATORY HIGH-LEVEL SYSTEM ARCHITECTURE DIAGRAM
 
-![High-Level System Architecture Diagram](./architecture.png)
+<img width="1307" height="582" alt="image" src="https://github.com/user-attachments/assets/4c3d82d0-3b43-4e82-8790-e39cbd3d26e0" />
+
 
 ---
 
@@ -161,58 +162,8 @@ An Execution Trace consists of a sequence of steps. Each step captures chronolog
 
 ## 10. MANDATORY DETAILED EVIDENCE-FIRST EVALUATION PIPELINE DIAGRAM
 
-```mermaid
-graph TD
+<img width="522" height="668" alt="image" src="https://github.com/user-attachments/assets/4eea6ae6-977b-40ba-9ef4-c8826537993a" />
 
-    %% Inputs
-    Spec["Test Case / Success Specification"]
-    Trace["Observed Execution Trace"]
-
-    %% Fact Extraction
-    subgraph Phase1["A. Fact Extraction"]
-        Facts["Trace Fact Extractor"]
-    end
-
-    %% Task Success
-    subgraph Phase2["B. Task Success Evaluation"]
-        TaskEval["Task Success Evaluator - Deterministic"]
-    end
-
-    %% Response Truthfulness
-    subgraph Phase3["C. Response Truthfulness Evaluation"]
-        TruthEval["Response Truthfulness Evaluator - LLM-Assisted Semantic"]
-    end
-
-    %% Verdict and Diagnosis
-    subgraph Phase4_5["D. Reliability Verdict and Failure Diagnosis"]
-        VerdictEval["Reliability Verdict Evaluator - Deterministic"]
-        DiagEval["Failure Diagnosis Evaluator - Deterministic"]
-    end
-
-    %% Evidence flow
-    Trace --> Facts
-
-    %% Task success is evaluated using requirements plus extracted evidence
-    Spec --> TaskEval
-    Facts --> TaskEval
-
-    %% Established reality is used for semantic truthfulness evaluation
-    TaskEval -->|"Established Execution Reality"| TruthEval
-    Facts --> TruthEval
-
-    %% Independent results combine into reliability verdict
-    TaskEval --> VerdictEval
-    TruthEval --> VerdictEval
-
-    %% Diagnosis uses evaluation outcomes
-    VerdictEval --> DiagEval
-    TaskEval --> DiagEval
-    TruthEval --> DiagEval
-
-    %% Persistence
-    VerdictEval --> DB[("Persistence")]
-    DiagEval --> DB
-```
 
 ---
 
@@ -452,11 +403,8 @@ The project is fully implemented with the following core capabilities:
 
 The current production architecture involves separate hosting environments for the frontend and backend, with a managed PostgreSQL database.
 
-```mermaid
-graph TD
-    Vercel["Vercel\nReact / Vite Frontend"] -- "HTTPS" --> Render["Render\nFastAPI Backend"]
-    Render --> Neon["Neon PostgreSQL\nProduction Database"]
-```
+<img width="277" height="390" alt="image" src="https://github.com/user-attachments/assets/004fe89e-8491-4eae-8e20-b680c827f73e" />
+
 
 The Render backend communicates with the configured production LLM provider using the backend environment variables.
 
