@@ -60,53 +60,7 @@ Analytics / Batch Evaluation / Dashboard
 
 ## 4. MANDATORY HIGH-LEVEL SYSTEM ARCHITECTURE DIAGRAM
 
-```mermaid
-graph TD
-    %% Frontend Layer
-    subgraph Frontend [React / Vite / TypeScript Frontend]
-        UI_Dash[Dashboard]
-        UI_Trace[Trace Detail]
-        UI_Batch[Batch Evaluation]
-    end
-
-    %% API Layer
-    subgraph API [FastAPI Backend Layer]
-        Router_TestCases[Test Cases Router]
-        Router_Traces[Traces Router]
-        Router_Eval[Evaluations & Pipeline Router]
-        Router_Analytics[Analytics & Batch Router]
-    end
-
-    %% Services Layer
-    subgraph Services [Application / Evaluation Services]
-        Svc_Fact[Trace Fact Extractor]
-        Svc_Task[Task Success Evaluator]
-        Svc_Truth[Response Truthfulness Evaluator]
-        Svc_Verdict[Reliability Verdict Evaluator]
-        Svc_Diag[Failure Diagnosis Evaluator]
-        Svc_Batch[Batch Evaluation Service]
-    end
-
-    %% External
-    LLM[LLM Provider / Client]
-
-    %% Database Layer
-    subgraph Persistence [Database Persistence]
-        DB[(SQLite Database)]
-    end
-
-    %% Connections
-    Frontend -->|HTTP / JSON| API
-    
-    Router_TestCases --> Services
-    Router_Traces --> Services
-    Router_Eval --> Services
-    Router_Analytics --> Services
-
-    Svc_Truth -->|Semantic Check| LLM
-    
-    Services -->|SQLAlchemy ORM| DB
-```
+![High-Level System Architecture Diagram](./architecture.png)
 
 ---
 
