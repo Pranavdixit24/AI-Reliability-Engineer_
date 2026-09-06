@@ -56,7 +56,7 @@ export const TracesList: React.FC<TracesListProps> = ({ evaluatedOnly = false })
       ) : error ? (
         <div className="alert-warning">{error}</div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
